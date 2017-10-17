@@ -20,7 +20,7 @@ function build() {
         make ${makeopts} clean
         make ${makeopts} mrproper
     fi
-    export deviceconfig="exynos7420-noblelte_tmo_defconfig"
+    export deviceconfig="werewolf_defconfig"
     export device="nobleltetmo"
 
     make -C ${RDIR} ${makeopts} ${deviceconfig}
