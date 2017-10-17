@@ -17,7 +17,8 @@ export RDIR=$(pwd)
 
 function build() {
     if [[ $shouldclean =~ "1" ]] ; then
-        rm -rf build
+        make ${makeopts} clean
+        make ${makeopts} mrproper
     fi
     export deviceconfig="exynos7420-noblelte_tmo_defconfig"
     export device="nobleltetmo"
