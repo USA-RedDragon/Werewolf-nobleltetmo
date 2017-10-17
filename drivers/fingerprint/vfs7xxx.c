@@ -42,6 +42,7 @@
 #include <linux/interrupt.h>
 #include <linux/delay.h>
 #include <linux/io.h>
+#include <linux/input.h>
 #include <linux/gpio.h>
 #include <linux/i2c/twl.h>
 #include <linux/wait.h>
@@ -88,7 +89,10 @@ struct sec_spi_info {
 
 #ifdef CONFIG_FB
 #include <linux/fb.h>
+#include <linux/notifier.h>
 #endif
+
+#define KEY_FINGERPRINT 0x2ee
 
 #define VALIDITY_PART_NAME "validity_fingerprint"
 static LIST_HEAD(device_list);
@@ -195,6 +199,8 @@ struct vfsspi_device_data {
 #ifdef CONFIG_FB
 	struct notifier_block fb_notifier;
 #endif
+	int screen_state; // 1:on 0:off
+	struct input_dev *input_dev;
 };
 
 #ifdef CONFIG_SENSORS_FINGERPRINT_DUALIZATION
@@ -237,11 +243,16 @@ static int vfsspi_fb_notifier_callback(struct notifier_block *self,
 				unsigned long event, void *data)
 {
 	struct fb_event  *evdata = data;
-	int              *blank;
+	int *blank = evdata->data;
+
+	if (*blank == FB_BLANK_UNBLANK) {
+		g_data->screen_state = 1;
+	} else if (*blank == FB_BLANK_POWERDOWN) {
+		g_data->screen_state = 0;
+	}
 
 	if (g_data->retain_pin) {
 		if (evdata && evdata->data && event == FB_EVENT_BLANK) {
-			blank = evdata->data;
 			if (*blank == FB_BLANK_UNBLANK){
 				vfsspi_set_retain_pin(g_data, 1, 0);
 				pr_info("vfsspi: FB_BLANK_UNBLANK\n");
@@ -803,6 +814,13 @@ static irqreturn_t vfsspi_irq(int irq, void *context)
 {
 	struct vfsspi_device_data *vfsspi_device = context;
 
+	if (!vfsspi_device->screen_state) {
+		input_report_key(vfsspi_device->input_dev, KEY_FINGERPRINT, 1);
+		input_sync(vfsspi_device->input_dev);
+		input_report_key(vfsspi_device->input_dev, KEY_FINGERPRINT, 0);
+		input_sync(vfsspi_device->input_dev);
+	}
+
 	/* Linux kernel is designed so that when you disable
 	an edge-triggered interrupt, and the edge happens while
 	the interrupt is disabled, the system will re-play the
@@ -1224,7 +1242,19 @@ static const struct file_operations vfsspi_fops = {
 static int vfsspi_platformInit(struct vfsspi_device_data *vfsspi_device)
 {
 	int status = 0;
+	int error = 0;
 	pr_info("%s\n", __func__);
+
+	vfsspi_device->input_dev = input_allocate_device();
+
+	/* Set event bits according to what events we are generating */ 
+	set_bit(EV_KEY, vfsspi_device->input_dev->evbit);
+
+	set_bit(KEY_FINGERPRINT, vfsspi_device->input_dev->keybit);
+
+	/* Register the input device */
+	error = input_register_device(vfsspi_device->input_dev);
+	if(error) { pr_err("%s input_register_device failed\n", __func__); }
 
 #ifdef ENABLE_SENSORS_FPRINT_SECURE
 	if (vfsspi_device->ocp_en == 0) {
@@ -1349,6 +1379,7 @@ static void vfsspi_platformUninit(struct vfsspi_device_data *vfsspi_device)
 	pr_info("%s\n", __func__);
 
 	if (vfsspi_device != NULL) {
+		input_free_device(vfsspi_device->input_dev);
 		free_irq(gpio_irq, vfsspi_device);
 		vfsspi_device->drdy_irq_flag = DRDY_IRQ_DISABLE;
 		if (vfsspi_device->ldo_pin)
