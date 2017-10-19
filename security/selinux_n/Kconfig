@@ -74,6 +74,16 @@ config SECURITY_SELINUX_AVC_STATS
 	  /selinux/avc/cache_stats, which may be monitored via
 	  tools such as avcstat.
 
+config SECURITY_SELINUX_ALWAYS_ENFORCE
+	bool "Always enforce SELINUX"
+	depends on SECURITY_SELINUX
+	default n
+
+config SECURITY_SELINUX_NEVER_ENFORCE
+	bool "Never enforce SELINUX"
+	depends on SECURITY_SELINUX
+	default n
+
 config SECURITY_SELINUX_CHECKREQPROT_VALUE
 	int "NSA SELinux checkreqprot default value"
 	depends on SECURITY_SELINUX
