@@ -667,7 +667,7 @@ static struct dentry *ecryptfs_lookup(struct inode *ecryptfs_dir_inode,
 			} 
 		}
 		else {
-			struct sdcardfs_sb_info *sbi = SDCARDFS_SB(lower_dir_dentry->d_sb);
+			//struct sdcardfs_sb_info *sbi = SDCARDFS_SB(lower_dir_dentry->d_sb);
 			
 			/* Derive custom permissions based on parent and current node */
 			switch (parent_info->permission) {
@@ -679,7 +679,7 @@ static struct dentry *ecryptfs_lookup(struct inode *ecryptfs_dir_inode,
 					break;
                			case PERMISSION_ANDROID:
 					dinfo->permission = PERMISSION_UNDER_ANDROID;
-               				dinfo->appid = get_appid(sbi->pkgl_id, ecryptfs_dentry->d_name.name);
+               				//dinfo->appid = get_appid(sbi->pkgl_id, ecryptfs_dentry->d_name.name);
 					break;
 			}
 		}
