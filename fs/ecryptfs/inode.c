@@ -1,4 +1,4 @@
-/**
+/*
  * eCryptfs: Linux filesystem encryption layer
  *
  * Copyright (C) 1997-2004 Erez Zadok
@@ -667,8 +667,9 @@ static struct dentry *ecryptfs_lookup(struct inode *ecryptfs_dir_inode,
 			} 
 		}
 		else {
+#ifdef CONFIG_SDCARD_FS
 			struct sdcardfs_sb_info *sbi = SDCARDFS_SB(lower_dir_dentry->d_sb);
-			
+#endif			
 			/* Derive custom permissions based on parent and current node */
 			switch (parent_info->permission) {
 				case PERMISSION_ROOT:
@@ -679,7 +680,9 @@ static struct dentry *ecryptfs_lookup(struct inode *ecryptfs_dir_inode,
 					break;
                			case PERMISSION_ANDROID:
 					dinfo->permission = PERMISSION_UNDER_ANDROID;
+#ifdef CONFIG_SDCARD_FS
                				dinfo->appid = get_appid(sbi->pkgl_id, ecryptfs_dentry->d_name.name);
+#endif
 					break;
 			}
 		}
