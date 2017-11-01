@@ -10,6 +10,7 @@ export CROSS_COMPILE="ccache /android-src/inv/prebuilts/gcc/linux-x86/aarch64/aa
 export ARCH=arm64
 export shouldclean="0"
 export istest="0"
+export deviceconfig=""
 
 export version=$(cat version)
 export RDIR=$(pwd)
@@ -20,7 +21,6 @@ function build() {
         make ${makeopts} clean
         make ${makeopts} mrproper
     fi
-    export deviceconfig="werewolf_defconfig"
     export device="nobleltetmo"
 
     make -C ${RDIR} ${makeopts} ${deviceconfig}
@@ -55,6 +55,12 @@ function build() {
 
 if [[ $1 =~ "clean" ]] ; then
     shouldclean="1"
+fi
+
+if [[ $2 =~ "stock" ]] ; then
+    deviceconfig="werewolf_stock_defconfig"
+else
+    deviceconfig="werewolf_defconfig"
 fi
 
 build

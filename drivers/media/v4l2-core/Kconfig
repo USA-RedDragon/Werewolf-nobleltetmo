@@ -39,6 +39,12 @@ config V4L2_MEM2MEM_DEV
 config VIDEOBUF_GEN
 	tristate
 
+config EXYNOS_ION_FLAG_PROTECTED
+	bool "Protected video buffer 2 by Android ION"
+	depends on ION_EXYNOS
+	help
+	  Enable the protected flag for Video Buffer 2 by ION
+
 config VIDEOBUF_DMA_SG
 	tristate
 	depends on HAS_DMA
