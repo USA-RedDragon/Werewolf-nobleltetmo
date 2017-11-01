@@ -3,7 +3,7 @@
 export kernel=Werewolf
 export outdir=/home/reddragon/Werewolf
 export makeopts="-j$(nproc)"
-export zImagePath="arch/arm64/boot/Image"
+export zImagePath="build/arch/arm64/boot/Image"
 export KBUILD_BUILD_USER=USA-RedDragon
 export KBUILD_BUILD_HOST=EdgeOfCreation
 export CROSS_COMPILE="ccache /android-src/inv/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
@@ -18,20 +18,23 @@ export RDIR=$(pwd)
 
 function build() {
     if [[ $shouldclean =~ "1" ]] ; then
-        make ${makeopts} clean
-        make ${makeopts} mrproper
+        rm -rf build
     fi
+
     export device="nobleltetmo"
 
-    make -C ${RDIR} ${makeopts} ${deviceconfig}
-    make -C ${RDIR} ${makeopts}
-    make -C ${RDIR} ${makeopts} modules
+    mkdir -p build
+
+    make -C ${RDIR} O=build ${makeopts} ${deviceconfig}
+    make -C ${RDIR} O=build ${makeopts}
+    make -C ${RDIR} O=build ${makeopts} modules
 
     if [ -a ${zImagePath} ] ; then
+        cd ${RDIR}
         cp ${zImagePath} zip/zImage
-	zip/dtbTool -o zip/dtb -s 2048 -p ./scripts/dtc/dtc ./arch/arm64/boot/dts/
+	zip/dtbTool -o zip/dtb -s 2048 -p ./build/scripts/dtc/dtc ./build/arch/arm64/boot/dts/
 	mkdir -p zip/modules/
-	find -name '*.ko' -exec cp -av {} zip/modules/ \;
+	find build -name '*.ko' -exec cp -av {} zip/modules/ \;
         cd zip
         zip -q -r ${kernel}-${device}-${version}.zip anykernel.sh META-INF tools zImage dtb modules
     else
@@ -53,14 +56,17 @@ function build() {
     rm -rf zip/modules
 }
 
-if [[ $1 =~ "clean" ]] ; then
-    shouldclean="1"
-fi
-
-if [[ $2 =~ "stock" ]] ; then
+if [[ $1 =~ "stock" ]] ; then
     deviceconfig="werewolf_stock_defconfig"
 else
     deviceconfig="werewolf_defconfig"
+    if [[ $1 =~ "clean" ]] ; then
+        shouldclean="1"
+    fi
+fi
+
+if [[ $2 =~ "clean" ]] ; then
+    shouldclean="1"
 fi
 
 build
