@@ -5,6 +5,7 @@
 # Licensed under GPLv2
 #
 
+ccflags-y := -Wno-int-in-bool-context
 obj-$(CONFIG_VIDEO_EXYNOS_HDMI) += s5p-hdmi.o
 s5p-hdmi-y += hdmi_drv.o hdmi_edid.o hdmi_reg.o hdmiphy_conf.o hdcp_drv.o
 obj-$(CONFIG_EXYNOS_VPP) += vpp/

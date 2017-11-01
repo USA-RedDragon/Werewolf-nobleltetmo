@@ -355,7 +355,7 @@ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  = --strip-debug
-CFLAGS_KERNEL	= -O2 -fmodulo-sched -ftree-vectorize \
+CFLAGS_KERNEL	= -O2 -Wno-format-overflow -fmodulo-sched -ftree-vectorize \
 		  -fmodulo-sched-allow-regmoves \
 		  -ftree-loop-vectorize \
 		  -ftree-loop-distribute-patterns \

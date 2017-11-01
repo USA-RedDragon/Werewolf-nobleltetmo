@@ -1,3 +1,5 @@
+ccflags-y := -Wno-bool-operation
+
 fimc-is-objs	:= fimc-is-core.o \
 		fimc-is-debug.o \
 		fimc-is-mem.o \
