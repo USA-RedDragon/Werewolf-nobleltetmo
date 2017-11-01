@@ -5,8 +5,8 @@
 # EDIFY properties
 kernel.string=Werewolf by USA-RedDragon @ xda-developers
 do.devicecheck=0
-do.initd=1
-do.modules=1
+do.initd=0
+do.modules=0
 do.cleanup=1
 device.name1=
 device.name2=

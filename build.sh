@@ -12,6 +12,7 @@ export shouldclean="0"
 export istest="0"
 export deviceconfig=""
 export device="nobleltetmo"
+export modules="0"
 
 export version=$(cat version)
 export RDIR=$(pwd)
@@ -26,16 +27,22 @@ function build() {
 
     make -C ${RDIR} O=build ${makeopts} ${deviceconfig}
     make -C ${RDIR} O=build ${makeopts}
-    make -C ${RDIR} O=build ${makeopts} modules
+    if [[ $modules =~ "1" ]] ; then
+        make -C ${RDIR} O=build ${makeopts} modules
+    fi
 
     if [ -a ${zImagePath} ] ; then
         cd ${RDIR}
         cp ${zImagePath} zip/zImage
 	zip/dtbTool -o zip/dtb -s 2048 -p ./build/scripts/dtc/dtc ./build/arch/arm64/boot/dts/
-	mkdir -p zip/modules/
-	find build -name '*.ko' -exec cp -av {} zip/modules/ \;
+        MOD=""
+        if [[ $modules =~ "1" ]] ; then
+            mkdir -p zip/modules/
+            find build -name '*.ko' -exec cp -av {} zip/modules/ \;
+            MOD="modules"
+        fi
         cd zip
-        zip -q -r ${kernel}-${device}-${version}.zip anykernel.sh META-INF tools zImage dtb modules
+        zip -q -r ${kernel}-${device}-${version}.zip anykernel.sh META-INF tools zImage dtb $MOD
     else
         echo -e "\n\e[31m***** Build Failed *****\e[0m\n"
     fi
