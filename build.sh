@@ -11,6 +11,7 @@ export ARCH=arm64
 export shouldclean="0"
 export istest="0"
 export deviceconfig=""
+export device="nobleltetmo"
 
 export version=$(cat version)
 export RDIR=$(pwd)
@@ -20,8 +21,6 @@ function build() {
     if [[ $shouldclean =~ "1" ]] ; then
         rm -rf build
     fi
-
-    export device="nobleltetmo"
 
     mkdir -p build
 
@@ -57,6 +56,7 @@ function build() {
 }
 
 if [[ $1 =~ "stock" ]] ; then
+    device="nobleltetmo-Stock"
     deviceconfig="werewolf_stock_defconfig"
 else
     deviceconfig="werewolf_defconfig"
